@@ -159,6 +159,54 @@
 }
 
 /*
+ * TCN `sticky` pins thead/tfoot plus `th:first-of-type` and `th:last-of-type` — the tbody row
+ * header (Task) wrongly picks up horizontal stickiness. We keep `sticky` off on `TTable` and apply
+ * thead stickiness + Actions-column stickiness only here.
+ */
+@layer components {
+    /*
+     * Ergo: `.tcn-table { display: block }` — the table no longer uses the normal column grid, so
+     * `<colgroup>` / `table-fixed` are effectively ignored and the first column swallows width.
+     */
+    .table-actions-col-sticky.tcn-table {
+        display: table;
+    }
+
+    /*
+     * TCN `TH` is a Box; `stack.module.css` sets `.box { width: 100% }`, so row-header cells fight
+     * the column width and expand (Task looked ~full width). Data cells use plain `<td>` and stay tight.
+     */
+    .table-actions-col-sticky.tcn-table .tcn-th {
+        width: auto;
+        max-width: 100%;
+    }
+
+    /* Sticky header row (scroll container is the dashboard wrapper, not the table). */
+    .table-actions-col-sticky.tcn-table .tcn-thead .tcn-tr > .tcn-th {
+        position: sticky;
+        top: 0;
+        z-index: 2;
+    }
+
+    .table-actions-col-sticky.tcn-table .tcn-tbody .tcn-tr > .tcn-td:last-child {
+        position: sticky;
+        right: 0;
+        z-index: 2;
+    }
+
+    /* Corner: sticks to top while scrolling vertically and to the right when scrolling horizontally. */
+    .table-actions-col-sticky.tcn-table .tcn-thead .tcn-tr > .tcn-th:last-child {
+        right: 0;
+        z-index: 4;
+    }
+
+    /* Ergo already borders the header’s last `th`; body cells need an edge when rows scroll under. */
+    .table-actions-col-sticky.tcn-table .tcn-tbody .tcn-tr > .tcn-td:last-child {
+        border-left: 1px solid var(--ergo-grey-light);
+    }
+}
+
+/*
  * Unlayered: wins over any late duplicate of @layer tcn-reset from @tcn/ui chunks.
  * Keeps the Laravel shell on Instrument Sans while TCN components still use their own rules.
  */

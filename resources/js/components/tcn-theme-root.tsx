@@ -10,7 +10,7 @@ import type { ReactNode } from 'react';
  */
 export function TcnThemeRoot({ children }: { children: ReactNode }) {
     return (
-        <div className="tcn-theme-root flex min-h-0 min-w-0 flex-1 flex-col">
+        <div className="tcn-theme-root flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
             {children}
         </div>
     );

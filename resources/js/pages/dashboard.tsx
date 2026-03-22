@@ -1,12 +1,14 @@
 import { Head } from '@inertiajs/react';
 import { AlertTriangleIcon } from '@tcn/icons/alert_triangle_icon';
+import { EditOneIcon } from '@tcn/icons/edit_one_icon';
+import { TrashOneIcon } from '@tcn/icons/trash_one_icon';
 import { Button } from '@tcn/ui/actions';
 import type { ButtonProps } from '@tcn/ui/actions';
 import { Field, FieldSet } from '@tcn/ui/form';
 import { Input } from '@tcn/ui/inputs';
-import { Divider } from '@tcn/ui/layouts';
+import { Divider, TBody, TD, TH, THead, TR, TTable } from '@tcn/ui/layouts';
 import { HStack, Spacer, VStack } from '@tcn/ui/stacks';
-import { BodyText } from '@tcn/ui/typography';
+import { BodyText, Caption } from '@tcn/ui/typography';
 import type {
     ButtonHTMLAttributes,
     ForwardRefExoticComponent,
@@ -52,12 +54,33 @@ const severityOptions: {
     { name: 'Encouraged', severity: 'encouraged' },
 ];
 
+interface TableDemoRow {
+    id: number;
+    task: string;
+    area: string;
+    owner: string;
+    status: string;
+    due: string;
+}
+
+const tableDemoRows: TableDemoRow[] = Array.from(
+    { length: 100 },
+    (_, index) => ({
+        id: index + 1,
+        task: `Task ${index + 1}`,
+        area: `Area ${index + 1}`,
+        owner: `Owner ${index + 1}`,
+        status: `Status ${index + 1}`,
+        due: `Due ${index + 1}`,
+    }),
+);
+
 export default function Dashboard() {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Dashboard" />
-            <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
-                <div className="grid auto-rows-min gap-4 md:grid-cols-3">
+            <div className="flex min-h-0 flex-1 basis-0 flex-col gap-4 overflow-hidden p-4">
+                <div className="grid shrink-0 auto-rows-min gap-4 overflow-x-auto md:grid-cols-3">
                     <div className="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
                         <div className="absolute inset-0 flex items-center justify-center overflow-auto p-4">
                             <HStack vAlign="center" gap="12px" hAlign="center">
@@ -198,8 +221,105 @@ export default function Dashboard() {
                         <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
                     </div>
                 </div>
-                <div className="relative min-h-screen flex-1 overflow-hidden rounded-xl border border-sidebar-border/70 md:min-h-min dark:border-sidebar-border">
-                    <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
+                {/*
+                  Title sits outside the overflow-auto region so it stays visible; only the table
+                  scrolls. Remaining height is shared: title shrink-0, scroll area flex-1 min-h-0.
+                */}
+                <div className="flex min-h-0 min-w-0 flex-1 basis-0 flex-col overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
+                    <div
+                        id="dashboard-sample-tasks-label"
+                        className="shrink-0 px-4 pt-4"
+                    >
+                        <Caption>
+                            Sample tasks — TCN{' '}
+                            <code className="text-sm">TTable</code> layout
+                        </Caption>
+                    </div>
+                    <div className="flex min-h-0 flex-1 flex-col px-4 pt-2 pb-4">
+                        <div className="min-h-0 flex-1 overflow-auto">
+                            <TTable
+                                aria-labelledby="dashboard-sample-tasks-label"
+                                className="table-actions-col-sticky w-full min-w-160 table-fixed overflow-visible"
+                            >
+                                {/*
+                                  Column widths: see `app.css` (.table-actions-col-sticky). Middle
+                                  columns must not consume ~80% + fixed Task/Actions or Due’s share
+                                  (≈ 20% − 10rem − 5.75rem) goes negative and collapses; `min-w-0`
+                                  on Due made that legal. Due stays `w-auto` for slack with a floor.
+                                */}
+                                <colgroup>
+                                    <col className="w-[10rem]" />
+                                    <col className="w-[12%]" />
+                                    <col className="w-[12%]" />
+                                    <col className="w-[10%]" />
+                                    <col className="w-auto min-w-[6.5rem]" />
+                                    <col className="w-[5.75rem]" />
+                                </colgroup>
+                                <THead>
+                                    <TR>
+                                        <TH scope="col">Task</TH>
+                                        <TH scope="col">Area</TH>
+                                        <TH scope="col">Owner</TH>
+                                        <TH scope="col">Status</TH>
+                                        <TH scope="col">Due</TH>
+                                        <TH scope="col">Actions</TH>
+                                    </TR>
+                                </THead>
+                                <TBody>
+                                    {tableDemoRows.map((row) => (
+                                        <TR key={row.id}>
+                                            <TH scope="row">{row.task}</TH>
+                                            <TD>{row.area}</TD>
+                                            <TD>{row.owner}</TD>
+                                            <TD>{row.status}</TD>
+                                            <TD>{row.due}</TD>
+                                            <TD>
+                                                <HStack
+                                                    gap="8px"
+                                                    vAlign="center"
+                                                >
+                                                    <TcnButton
+                                                        type="button"
+                                                        hierarchy="tertiary"
+                                                        severity="neutral"
+                                                        size="sm"
+                                                        className="shrink-0"
+                                                        aria-label={`Edit ${row.task}`}
+                                                        onClick={() =>
+                                                            console.log(
+                                                                'edit task',
+                                                                row.id,
+                                                                row.task,
+                                                            )
+                                                        }
+                                                    >
+                                                        <EditOneIcon size="sm" />
+                                                    </TcnButton>
+                                                    <TcnButton
+                                                        type="button"
+                                                        hierarchy="tertiary"
+                                                        severity="dangerous"
+                                                        size="sm"
+                                                        className="shrink-0"
+                                                        aria-label={`Delete ${row.task}`}
+                                                        onClick={() =>
+                                                            console.log(
+                                                                'delete task',
+                                                                row.id,
+                                                                row.task,
+                                                            )
+                                                        }
+                                                    >
+                                                        <TrashOneIcon size="sm" />
+                                                    </TcnButton>
+                                                </HStack>
+                                            </TD>
+                                        </TR>
+                                    ))}
+                                </TBody>
+                            </TTable>
+                        </div>
+                    </div>
                 </div>
             </div>
         </AppLayout>
