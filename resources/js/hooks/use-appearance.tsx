@@ -6,7 +6,7 @@ export type Appearance = 'light';
 export type UseAppearanceReturn = {
     readonly appearance: Appearance;
     readonly resolvedAppearance: ResolvedAppearance;
-    readonly updateAppearance: (mode: Appearance) => void;
+    readonly updateAppearance: () => void;
 };
 
 const listeners = new Set<() => void>();
@@ -17,7 +17,11 @@ const subscribe = (callback: () => void) => {
     return () => listeners.delete(callback);
 };
 
-const notify = (): void => listeners.forEach((listener) => listener());
+const notify = (): void => {
+    for (const listener of listeners) {
+        listener();
+    }
+};
 
 const applyLightTheme = (): void => {
     if (typeof document === 'undefined') {
@@ -46,7 +50,7 @@ export function useAppearance(): UseAppearanceReturn {
         () => 'light' as const,
     );
 
-    const updateAppearance = (_mode: Appearance): void => {
+    const updateAppearance = (): void => {
         applyLightTheme();
         notify();
     };

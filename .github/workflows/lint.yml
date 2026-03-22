@@ -31,16 +31,13 @@ jobs:
       - name: Install Dependencies
         run: |
           composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
-          npm install
+          npm install --legacy-peer-deps
 
       - name: Run Pint
         run: composer lint
 
-      - name: Format Frontend
-        run: npm run format
-
-      - name: Lint Frontend
-        run: npm run lint
+      - name: Biome (format, lint, imports)
+        run: npm run lint:check
 
       # - name: Commit Changes
       #   uses: stefanzweifel/git-auto-commit-action@v7
